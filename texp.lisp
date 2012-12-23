@@ -19,19 +19,19 @@
 
 (defparameter *escape-table*
   '((#\\ . "\\backslash")
-    (#\{ . "?")
-    (#\} . "?")
+    (#\{ . "{\\tt\\char`{\\/}")
+    (#\} . "{\\tt\\char`}\\/}")
     (#\$ . "\\$")
     (#\& . "\\&")
     (#\# . "\\#")
-    (#\^ . "?")
+    (#\^ . "{\\tt\\char`^\\/}")
     (#\_ . "\\_")
     (#\% . "\\%")
-    (#\~ . "?")
-    (#\" . "?")
-    (#\| . "?")
-    (#\< . "?")
-    (#\> . "?"))
+    (#\~ . "{\\tt\\char`~\\/}")
+    (#\" . "{\\tt\\char`\"\\/}")
+    (#\| . "{\\tt\\char`|\\/}")
+    (#\< . "{\\tt\\char`<\\/}")
+    (#\> . "{\\tt\\char`>\\/}"))
   "TeX special characters.")
 
 (defun escape-p (character)
@@ -81,7 +81,7 @@
 
 (defun compile-macro-call (name &rest arguments)
   "Compile call to macro with NAME and ARGUMENTS."
-  `(progn (format t "\\~a" ,(symbol-identifier name))
+  `(progn (format t "\\~a " ,(symbol-identifier name))
 	  ,@(compile-expressions arguments)
 	  (values)))
 
