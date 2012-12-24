@@ -90,6 +90,7 @@
   (etypecase expression
     (string `(write-string ,expression))
     (symbol `(write-string ,(symbol-identifier expression)))
+    (number `(write-string ,(format nil "~a" expression)))
     (list (case (car expression)
 	    ($         (apply #'compile-interpolation (cdr expression)))
 	    (br        (apply #'compile-break (cdr expression)))
@@ -108,18 +109,26 @@
      ,@(compile-expressions expressions)
      (values)))
 
-(defun make-parameter-pointer-map (parameters)
-  "Make a map of PARAMETERS to TeX macro parameter pointers of the form
-'#<N>'."
+(defun make-parameter-string (n)
+  "Make parameter string for N parameters."
+  (subseq "#1#2#3#4#5#6#7#8#9" 0 (* n 2)))
+
+(defun compile-parameters (parameters)
+  "Returns a map of PARAMETERS to TeX macro parameter pointers of the form
+'#<N>' and a parameter string for TeX's \\def."
   (let ((n (length parameters)))
     (when (> n 9)
       (error "TeX macros support up to nine parameters only."))
-    (loop for i from 1 to n
-          for parameter in parameters
-       collect `(,parameter ,(format nil "#~a" i)))))
+    (values
+     (loop for i from 1 to n
+	   for parameter in parameters
+	collect `(,parameter ,(format nil "#~a" i)))
+     (make-parameter-string n))))
 
-(defmacro deftex (name parameters parameter-format &body body)
-  "Define a TeX macro with NAME, PARAMETERS, PARAMETER-FORMAT and BODY."
-  `(let ,(make-parameter-pointer-map parameters)
-     (tex (def (,name ,parameter-format) ({} ,@body))
-	  (br))))
+(defmacro deftex (name parameters &body body)
+  "Define a TeX macro with NAME, PARAMETERS and BODY."
+  (multiple-value-bind (pointer-map parameter-string)
+      (compile-parameters parameters)
+    `(let ,pointer-map
+       (tex (def (,name ,parameter-string) ({} ,@body))
+	    (br)))))
