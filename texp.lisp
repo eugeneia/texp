@@ -81,7 +81,9 @@
 
 (defun compile-macro-call (name &rest arguments)
   "Compile call to macro with NAME and ARGUMENTS."
-  `(progn (format t "\\~a " ,(symbol-identifier name))
+  `(progn (format t "\\~a " ,(etypecase name
+                              (symbol (symbol-identifier name))
+                              (string name)))
 	  ,@(compile-expressions arguments)
 	  (values)))
 
