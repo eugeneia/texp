@@ -64,20 +64,20 @@
   "Print double newline."
   `(format t "~%~%"))
 
-(defun compile-parenthized (open close expressions)
-  "Compile EXPRESSIONS parenthized by OPEN and CLOSE."
+(defun compile-parenthesized (open close expressions)
+  "Compile EXPRESSIONS parenthesized by OPEN and CLOSE."
   `(progn (write-char ,open)
 	  ,@(compile-expressions expressions)
 	  (write-char ,close)
 	  (values)))
 
 (defun compile-with-braces (expressions)
-  "Compile EXPRESSIONS parenthized by braces."
-  (compile-parenthized #\{ #\} expressions))
+  "Compile EXPRESSIONS parenthesized by braces."
+  (compile-parenthesized #\{ #\} expressions))
 
 (defun compile-with-brackets (expressions)
-  "Compile EXPRESSIONS parenthized by brackets."
-  (compile-parenthized #\[ #\] expressions))
+  "Compile EXPRESSIONS parenthesized by brackets."
+  (compile-parenthesized #\[ #\] expressions))
 
 (defun compile-macro-call (name &rest arguments)
   "Compile call to macro with NAME and ARGUMENTS."
@@ -107,8 +107,7 @@
 
 (defmacro tex (&rest expressions)
   "Print compiled TeX EXPRESSIONS."
-  `(progn
-     ,@(compile-expressions expressions)
+  `(progn ,@(compile-expressions expressions)
      (values)))
 
 (defun make-parameter-string (n)
