@@ -32,7 +32,7 @@
     (#\| . "{\\tt\\char`|\\/}")
     (#\< . "{\\tt\\char`<\\/}")
     (#\> . "{\\tt\\char`>\\/}"))
-  "TeX special characters to escaped equivalent mapping.")
+  "TeX special characters to quoted equivalent mapping.")
 
 (defun escape-p (character)
   "Predicate to test if CHARACTER needs to be escaped."
@@ -43,7 +43,8 @@
   (cdr (assoc character *escape-table*)))
 
 (defun escape (string)
-  "Escape STRING as defined by *ESCAPE-TABLE*. E.g. for consumption by _TeX_."
+  "Escape STRING as defined by *ESCAPE-TABLE*. E.g. quote _TeX_ special
+characters."
   (with-output-to-string (out)
     (loop for start = 0 then (1+ pos)
        for pos = (position-if #'escape-p string :start start)
