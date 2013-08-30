@@ -125,12 +125,12 @@ converted to two newlines (e.g. paragraph seperator).  The
 {($ FORM)} special form will evaluate FORM and print its result if it is
 a string (e.g. interpolation). Other compound forms (e.g.
 {(SYMBOL-OR-STRING &rest EXPRESSIONS)}) are converted to
-{\\SYMBOL-OR-STRING EXPRESSIONS} while EXPRESSIONS will be procecessed
+{\\\\SYMBOL-OR-STRING EXPRESSIONS} while EXPRESSIONS will be procecessed
 recursively. The special forms {([] &rest EXPRESSIONS)} and
-{(\{\} &rest EXPRESSIONS)} print EXPRESSIONS recursively too but wrap
+{(\\{\\} &rest EXPRESSIONS)} print EXPRESSIONS recursively too but wrap
 them with bracktes or curly braces. If the readtable TEXP:SYNTAX is used
 then the latter forms can be abbreviated using {[&rest EXPRESSIONS]}
-and {\{&rest EXPRESSIONS\}}."
+and {\\{&rest EXPRESSIONS\\}}."
   `(progn ,@(compile-expressions expressions)
      (values)))
 
@@ -140,7 +140,7 @@ and {\{&rest EXPRESSIONS\}}."
 
 (defun compile-parameters (parameters)
   "Returns a map of PARAMETERS to TeX macro parameter pointers of the form
-'#<N>' and a parameter string for TeX's \\def."
+'#<N>' and a parameter string for TeX's \\\\def."
   (let ((n (length parameters)))
     (when (> n 9)
       (error "TeX macros support up to nine parameters only."))
