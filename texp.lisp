@@ -32,7 +32,7 @@
     (#\| . "{\\tt\\char`|\\/}")
     (#\< . "{\\tt\\char`<\\/}")
     (#\> . "{\\tt\\char`>\\/}"))
-  "TeX special characters.")
+  "TeX special characters to escaped equivalent mapping.")
 
 (defun escape-p (character)
   "Predicate to test if CHARACTER needs to be escaped."
@@ -43,13 +43,25 @@
   (cdr (assoc character *escape-table*)))
 
 (defun escape (string)
-  "Escape STRING as defined by *ESCAPE-TABLE*."
+  "Escape STRING as defined by *ESCAPE-TABLE*. E.g. for consumption by _TeX_."
   (with-output-to-string (out)
     (loop for start = 0 then (1+ pos)
        for pos = (position-if #'escape-p string :start start)
        do (write-string string out :start start :end pos)
        when pos do (write-string (escape-char (char string pos)) out)
        while pos)))
+
+(defparameter $ nil
+  "Special form symbol for interpolation.")
+
+(defparameter BR nil
+  "Special form symbol printing paragraph seperators.")
+
+(defparameter [] nil
+  "Special form symbol for wrapping expressions with brackets.")
+
+(defparameter {} nil
+  "Special form symbol for wrapping expressions with curly braces.")
 
 (defun symbol-identifier (symbol)
   "Return identifier string for SYMBOL."
@@ -106,7 +118,18 @@
      collect (compile-expression expression)))
 
 (defmacro tex (&rest expressions)
-  "Print compiled TeX EXPRESSIONS."
+  "Print compiled TeX EXPRESSIONS. Strings and numbers are printed as is
+and symbols are printed in lower case. The {(BR)} special form is
+converted to two newlines (e.g. paragraph seperator).  The
+{($ FORM)} special form will evaluate FORM and print its result if it is
+a string (e.g. interpolation). Other compound forms (e.g.
+{(SYMBOL-OR-STRING &rest EXPRESSIONS)}) are converted to
+{\\SYMBOL-OR-STRING EXPRESSIONS} while EXPRESSIONS will be procecessed
+recursively. The special forms {([] &rest EXPRESSIONS)} and
+{(\{\} &rest EXPRESSIONS)} print EXPRESSIONS recursively too but wrap
+them with bracktes or curly braces. If the readtable TEXP:SYNTAX is used
+then the latter forms can be abbreviated using {[&rest EXPRESSIONS]}
+and {\{&rest EXPRESSIONS\}}."
   `(progn ,@(compile-expressions expressions)
      (values)))
 
@@ -127,7 +150,11 @@
      (make-parameter-string n))))
 
 (defmacro deftex (name parameters &body body)
-  "Define a TeX macro with NAME, PARAMETERS and BODY."
+  "Define a TeX macro with NAME, PARAMETERS and BODY. NAME must be a
+symbol or a string. If it is a symbol it will be printed in lower case.
+PARAMETERS must be a list of symbols which will be bound to TeX parameter
+identifiers inside BODY. The expressions in BODY will be printed as if by
+TEX and the interpolation form can be used to reference PARAMETERS."
   (multiple-value-bind (pointer-map parameter-string)
       (compile-parameters parameters)
     `(let ,pointer-map
