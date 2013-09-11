@@ -43,7 +43,7 @@
   (cdr (assoc character *escape-table*)))
 
 (defun escape (string)
-  "Escape STRING as defined by *ESCAPE-TABLE*. E.g. quote _TeX_ special
+  "Escape STRING as defined by *ESCAPE-TABLE*. E.g. quote  _TeX_ special
 characters."
   (with-output-to-string (out)
     (loop for start = 0 then (1+ pos)
@@ -122,18 +122,26 @@ characters."
      collect (compile-expression expression)))
 
 (defmacro tex (&rest expressions)
-  "Print compiled _TeX_ EXPRESSIONS. Strings and numbers are printed as
-is and symbols are printed in lower case. The {(BR)} special form is
-converted to two newlines (e.g. paragraph seperator).  The
-{($ FORM)} special form will evaluate FORM and print its result if it is
-a string (e.g. interpolation). Other compound forms (e.g.
-{(SYMBOL-OR-STRING &rest EXPRESSIONS)}) are converted to
-{\\\\SYMBOL-OR-STRING EXPRESSIONS} while EXPRESSIONS will be procecessed
-recursively. The special forms {([] &rest EXPRESSIONS)} and
-{(\\{\\} &rest EXPRESSIONS)} print EXPRESSIONS recursively too but wrap
-them with bracktes or curly braces. If the readtable TEXP:SYNTAX is used
-then the latter forms can be abbreviated using {[&rest EXPRESSIONS]}
-and {\\{&rest EXPRESSIONS\\}}."
+  "Print compiled _TeX_ EXPRESSIONS.
+
+Strings and numbers are printed as is and symbols are printed in lower
+case. 
+
+The {(BR)} special form is converted to two newlines (e.g. paragraph
+seperator). 
+
+The {($ FORM)} special form will evaluate FORM and print its result if it
+is a string (e.g. interpolation).
+
+Other compound forms (e.g. {(SYMBOL-OR-STRING &rest EXPRESSIONS)}) are
+converted to {\\\\SYMBOL-OR-STRING EXPRESSIONS} while EXPRESSIONS will be
+procecessed recursively.
+
+The special forms {([] &rest EXPRESSIONS)} and {(\\{\\} &rest
+EXPRESSIONS)} print EXPRESSIONS recursively too but wrap them with
+bracktes or curly braces. If the readtable TEXP:SYNTAX is used then the
+latter forms can be abbreviated using {[&rest EXPRESSIONS]} and
+{\\{&rest EXPRESSIONS\\}}."
   `(progn ,@(compile-expressions expressions)
      (values)))
 
@@ -154,11 +162,16 @@ and {\\{&rest EXPRESSIONS\\}}."
      (make-parameter-string n))))
 
 (defmacro deftex (name parameters &body body)
-  "Define a _TeX_ macro with NAME, PARAMETERS and BODY. NAME must be a
-symbol or a string. If it is a symbol it will be printed in lower case.
-PARAMETERS must be a list of symbols which will be bound to _TeX_ parameter
-identifiers inside BODY. The expressions in BODY will be printed as if by
-TEX and the interpolation form can be used to reference PARAMETERS."
+  "Define a _TeX_ macro with NAME, PARAMETERS and BODY.
+
+NAME must be a symbol or a string. If it is a symbol it will be printed
+in lower case.
+
+PARAMETERS must be a list of symbols which will be bound to _TeX_
+parameter identifiers inside BODY.
+
+The expressions in BODY will be printed as if by  TEX and the
+interpolation form can be used to reference PARAMETERS."
   (multiple-value-bind (pointer-map parameter-string)
       (compile-parameters parameters)
     `(let ,pointer-map
