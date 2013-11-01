@@ -56,7 +56,8 @@ characters."
   "Special form symbol for interpolation.")
 
 (defparameter BR nil
-  "Special form symbol printing paragraph seperators.")
+  "Special form symbol for printing paragraph seperators (double
+  newline).")
 
 (defparameter [] nil
   "Special form symbol for wrapping expressions with brackets.")
