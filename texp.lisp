@@ -9,6 +9,7 @@
 	   :escape
 	   :$
 	   :br
+           :\\
 	   :[]
 	   :{}
 	   :tex
@@ -51,9 +52,12 @@ characters."
 (defparameter $ nil
   "Special form symbol for interpolation.")
 
-(defparameter BR nil
+(defparameter br nil
   "Special form symbol for printing paragraph seperators (double
   newline).")
+
+(defparameter \\ nil
+  "Special form symbol for printing explicit newline tokens.")
 
 (defparameter [] nil
   "Special form symbol for wrapping expressions with brackets.")
@@ -76,6 +80,10 @@ characters."
 (defun compile-break ()
   "Print double newline."
   `(format t "~%~%"))
+
+(defun compile-newline ()
+  "Print explicit newline."
+  `(format t "\\\\~%"))
 
 (defun compile-parenthesized (open close expressions)
   "Compile EXPRESSIONS parenthesized by OPEN and CLOSE."
@@ -109,6 +117,7 @@ characters."
     (list (case (car expression)
 	    ($         (apply #'compile-interpolation (cdr expression)))
 	    (br        (apply #'compile-break (cdr expression)))
+            (\\        (apply #'compile-newline (cdr expression)))
 	    ({}        (compile-with-braces (cdr expression)))
 	    ([]        (compile-with-brackets (cdr expression)))
 	    (otherwise (apply #'compile-macro-call expression))))))
