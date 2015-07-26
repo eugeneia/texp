@@ -117,21 +117,21 @@
      collect (compile-expression expression)))
 
 (defmacro tex (&rest expressions)
-  "_expressions_::= ↓_expression_*
+  "_expressions_::= ↓_expression_\\*
 
    _expression_::= ↓_break-clause_ | ↓_interpolation-clause_ |
-                   ↓_brackets-clause_ | ↓_braces-clause_ | ↓_tex-clause |
-                   _literal_
+                   ↓_brackets-clause_ | ↓_braces-clause_ |
+                   ↓_tex-clause_ | _literal_
 
    _break-clause_::= {(br)}
 
-   _interpolation-clause_::= {($} _form_ {)}
+   _interpolation-clause_::= {($} _form_{)}
 
-   _brackets-clause_::= {([]} _expressions_ {)}
+   _brackets-clause_::= {([]} 〚_expression_\\*〛{)}
 
-   _braces-clause_::= {({\}} _expressions_ {)}
+   _braces-clause_::= {({\}} 〚_expression_\\*〛{)}
 
-   _tex-clause::= {(} _tex-macro_ _expressions_ {)}
+   _tex-clause_::= {(} _tex-macro_ 〚_expression_\\*〛{)}
 
    *Arguments and Values:*
 
@@ -160,10 +160,10 @@
    the result is a _string_.
 
    _Bracket-clause_ and _braces-clause_ print _expressions_ surrounded by
-   brackets ({[}, {]}) and braces ({{}, {\}}) respectively. If the
+   brackets ({[}, {]}) and braces ({{}, {\\}}) respectively. If the
    _readtable_ {texp:syntax} is used then _bracket-clause_ and
-   _braces-clause_ can be written as {[} _expression_* {]} and {{}
-   _expression_* {\}}."
+   _braces-clause_ can be written as {[} _expression_\\* {]} and {{}
+   _expression_\\* {\}}."
   `(progn ,@(compile-expressions expressions)
      (values)))
 
@@ -184,7 +184,7 @@
      (make-parameter-string n))))
 
 (defmacro deftex (name parameters &body forms)
-  "_parameters_::= {(}_var_*{)}
+  "_parameters_::= {(}〚_var_\\*〛{)}
 
    *Arguments and Values:*
 
