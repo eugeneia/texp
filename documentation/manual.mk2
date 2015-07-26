@@ -1,15 +1,15 @@
 < Abstract
 
- {TEXP} is a domain specific language embedded in _Common Lisp_ for
+ {texp} is a domain specific language embedded in _Common Lisp_ for
  printing _TeX expressions_. Because, let's face it, _TeX_ is a horrible
- programming language. I created {TEXP} to ease the programatic
+ programming language. I created {texp} to ease the programatic
  generation of _TeX_ documents and programs from within _Common Lisp_.
- By intertwining both languages, {TEXP} brings high level meta
+ By intertwining both languages, {texp} brings high level meta
  programming to _TeX_ and enables you to produce high quality print media
  in an easy and scalable fashion.
 
  If you have no experience with _TeX_ then none of what follows will make
- any sense to you. {TEXP} has no model of _TeX's_ semantics, besides
+ any sense to you. {texp} has no model of _TeX's_ semantics, besides
  escaping special characters. For an introduction to _TeX_ I recommend
  Knuth's _TeXbook_.
 
@@ -17,10 +17,10 @@
 
 < A brief example
 
- To utilize {TEXP} we need to intern the {TEXP} package and import the
- {TEXP:SYNTAX} readtable:
+ To utilize {texp} we need to intern the {texp} package and import the
+ {texp:syntax} readtable:
 
- #code {IN-READTABLE} is provided by {NAMED-READTABLES}.#
+ #code {in-readtable} is provided by {named-readtables}.#
  (defpackage texp-example
    (:use :texp :named-readtables))
 
@@ -48,37 +48,37 @@
     (tex (bye)))
  #
 
- {DEFTEX} enables us to use _TeX_'s {\\def} with more descriptive
- parameter names. {BR} prints a double newline and {ESCAPE} handles
+ {deftex} enables us to use _TeX_'s {\\def} with more descriptive
+ parameter names. {br} prints a double newline and {escape} handles
  escaping of _TeX_'s many special characters. _TeX_ macros can be
  expressed in a lispy way.
 
 >
 
 
-< The {TEX} macro
+< The {tex} macro
 
- The {TEX} macro translates its child expressions to _TeX_
+ The {tex} macro translates its child expressions to _TeX_
  expressions. It is a very thin abstraction at the syntax layer. The
  translation rules are listed below:
 
- #table {TEX} translation rules. {foo} and {bar} could be strings or
- numbers as well. In case of symbols, the {SYMBOL-NAME}s are printed in
+ #table {tex} translation rules. {foo} and {bar} could be strings or
+ numbers as well. In case of symbols, the {symbol-name}s are printed in
  lower case for convenience. Brackets and curly braces require the
- readtable {TEXP:SYNTAX}. All expressions can be nested.#
+ readtable {texp:syntax}. All expressions can be nested.#
  | s-expression    | translates to
  | {(foo bar baz)} | {\\foo barbaz}
  | {[foo bar]}     | {[foobar]}
  | {{foo bar\}}    | {{foobar\}}
 
- The {(BR)} form prints two newlines, used to seperate paragraphs in
+ The {(br)} form prints two newlines, used to seperate paragraphs in
  _TeX_:
 
  #code Prints two newlines.#
  (tex (br))
  #
 
- The {$} form lets you interpolate values into {TEX} bodies. Consider the
+ The {$} form lets you interpolate values into {tex} bodies. Consider the
  following example:
 
  #code Prints 'Hello!'.#
@@ -86,9 +86,9 @@
    (tex ($ x)))
  #
 
- The {ESCAPE} function can be used to escape characters treated specially
+ The {escape} function can be used to escape characters treated specially
  by _TeX_ in strings of input. A table of escape rules is bound to
- {*ESCAPE-TABLE*}.
+ {*escape-table*}.
 
  #code Prints '\\$\\$\\$'.#
  (tex ($ (escape "$$$")))
@@ -96,12 +96,12 @@
 
 >
 
-< The {DEFTEX} macro
+< The {deftex} macro
 
- The {DEFTEX} macro simplifies writing _TeX_'s {\\def} statements using
- {TEXP}. It's best described by example:
+ The {deftex} macro simplifies writing _TeX_'s {\\def} statements using
+ {texp}. It's best described by example:
 
- This {DEFTEX} form
+ This {deftex} form
 
  #code #
  (deftex foo (parameter-a parameter-b)
@@ -120,9 +120,9 @@
  (tex (foo {"hello"} {"world"}))
  #
 
- As you can see, {DEFTEX} does not do much at all. Nevertheless, it
+ As you can see, {deftex} does not do much at all. Nevertheless, it
  provides a lispy syntax for _TeX_ {\\def}'s and enables you to use
  descriptive parameter names by hiding _TeX_'s natural parameter syntax
- with a {LET}.
+ with a {let}.
 
 >

@@ -2,7 +2,7 @@
 
 (defpackage texp
   (:documentation
-   "DSL for outputting _TeX_ expressions using s-expressions.")
+   "DSL for outputting _TeX_ expressions using S-expressions.")
   (:use :cl
 	:named-readtables)
   (:export :*escape-table*
@@ -29,7 +29,9 @@
     (#\~ . "{\\textasciitilde}")
     (#\^ . "{\\textasciicircum}")
     (#\\ . "{\\textbackslash}"))
-  "_TeX_ special characters to quoted equivalent mapping.")
+  "*Description:*
+
+   _Alist_ mapping _TeX_ special characters to quoted equivalent.")
 
 (defun escape-p (character)
   "Predicate to test if CHARACTER needs to be escaped."
@@ -40,33 +42,20 @@
   (cdr (assoc character *escape-table*)))
 
 (defun escape (string)
-  "Escape STRING as defined by *ESCAPE-TABLE*. E.g. quote  _TeX_ special
-characters."
+  "*Arguments and Values:*
+
+   _string_—a _string_.
+
+   *Description:*
+
+   {escape} encodes _string_ as defined by {*escape-table*}. E.g. it
+   quotes _TeX_ special characters."
   (with-output-to-string (out)
     (loop for start = 0 then (1+ pos)
        for pos = (position-if #'escape-p string :start start)
        do (write-string string out :start start :end pos)
        when pos do (write-string (escape-char (char string pos)) out)
        while pos)))
-
-(defparameter $ nil
-  "Special form symbol for interpolation.")
-
-(defparameter br nil
-  "Special form symbol for printing paragraph seperators (double
-  newline).")
-
-(defparameter \\ nil
-  "Special form symbol for printing explicit newline tokens.")
-
-(defparameter [] nil
-  "Special form symbol for wrapping expressions with brackets.")
-
-(defparameter {} nil
-  "Special form symbol for wrapping expressions with curly braces.")
-
-(defparameter syntax nil
-  "Readtable for braces and brackets syntax.")
 
 (defun symbol-identifier (symbol)
   "Return identifier string for SYMBOL."
@@ -128,26 +117,53 @@ characters."
      collect (compile-expression expression)))
 
 (defmacro tex (&rest expressions)
-  "Print compiled _TeX_ EXPRESSIONS.
+  "_expressions_::= ↓_expression_*
 
-Strings and numbers are printed as is and symbols are printed in lower
-case. 
+   _expression_::= ↓_break-clause_ | ↓_interpolation-clause_ |
+                   ↓_brackets-clause_ | ↓_braces-clause_ | ↓_tex-clause |
+                   _literal_
 
-The {(BR)} special form is converted to two newlines (e.g. paragraph
-seperator). 
+   _break-clause_::= {(br)}
 
-The {($ FORM)} special form will evaluate FORM and print its result if it
-is a string (e.g. interpolation).
+   _interpolation-clause_::= {($} _form_ {)}
 
-Other compound forms (e.g. {(SYMBOL-OR-STRING &rest EXPRESSIONS)}) are
-converted to {\\\\SYMBOL-OR-STRING EXPRESSIONS} while EXPRESSIONS will be
-procecessed recursively.
+   _brackets-clause_::= {([]} _expressions_ {)}
 
-The special forms {([] &rest EXPRESSIONS)} and {(\\{\\} &rest
-EXPRESSIONS)} print EXPRESSIONS recursively too but wrap them with
-bracktes or curly braces. If the readtable TEXP:SYNTAX is used then the
-latter forms can be abbreviated using {[&rest EXPRESSIONS]} and
-{\\{&rest EXPRESSIONS\\}}."
+   _braces-clause_::= {({\}} _expressions_ {)}
+
+   _tex-clause::= {(} _tex-macro_ _expressions_ {)}
+
+   *Arguments and Values:*
+
+   _literal_—a _string_, _symbol_ or _number_.
+
+   _form_—a _form_.
+
+   _tex-macro_—a _symbol_ or a _string_.
+
+   *Description:*
+
+   {tex} compiles _TeX expressions_ to {*standard-output*}.
+
+   A _Literal_ is printed as follows:
+
+   + a _string_ is printed as it is
+   + a _symbol_ is printed in lower case
+   + a _number_ is printed _readably_
+
+   A _tex-clause_ prints a _TeX_ macro call of _tex-macro_ followed by
+   _expressions_.
+
+   A _break-clause_ prints two newlines (e.g. a paragraph separator).
+
+   An _interpolation-clause_ evaluates _form_ and prints its result if
+   the result is a _string_.
+
+   _Bracket-clause_ and _braces-clause_ print _expressions_ surrounded by
+   brackets ({[}, {]}) and braces ({{}, {\}}) respectively. If the
+   _readtable_ {texp:syntax} is used then _bracket-clause_ and
+   _braces-clause_ can be written as {[} _expression_* {]} and {{}
+   _expression_* {\}}."
   `(progn ,@(compile-expressions expressions)
      (values)))
 
@@ -167,19 +183,33 @@ latter forms can be abbreviated using {[&rest EXPRESSIONS]} and
 	collect `(,parameter ,(format nil "#~a" i)))
      (make-parameter-string n))))
 
-(defmacro deftex (name parameters &body body)
-  "Define a _TeX_ macro with NAME, PARAMETERS and BODY.
+(defmacro deftex (name parameters &body forms)
+  "_parameters_::= {(}_var_*{)}
 
-NAME must be a symbol or a string. If it is a symbol it will be printed
-in lower case.
+   *Arguments and Values:*
 
-PARAMETERS must be a list of symbols which will be bound to _TeX_
-parameter identifiers inside BODY.
+   _name_—a _symbol_ or _string_.
 
-The expressions in BODY will be printed as if by  TEX and the
-interpolation form can be used to reference PARAMETERS."
+   _forms_—_forms_.
+
+   _var_—a _symbol_.
+
+   *Description:*
+
+   {deftex} prints the definition of a _TeX_ macro with _name_ that
+   expands to _forms_ to {*standard-output*}. If _name_ is a _symbol_ it
+   will be printed in lower case. _Forms_ are evaluated as if by {tex}
+   with each _var_ in _parameters_ bound to a numeric _TeX_ parameter
+   identifier.
+
+   *Examples:*
+
+   #code#
+   (deftex hello (name) \"Hello \" ($ name))
+   ▷ \\def \\hello #1{Hello #1}
+   #"
   (multiple-value-bind (pointer-map parameter-string)
       (compile-parameters parameters)
     `(let ,pointer-map
-       (tex (def (,name ,parameter-string) ({} ,@body))
+       (tex (def (,name ,parameter-string) ({} ,@forms))
 	    (br)))))
