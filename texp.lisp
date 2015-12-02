@@ -127,11 +127,11 @@
 
    _interpolation-clause_::= {($} _form_{)}
 
-   _brackets-clause_::= {([]} 〚_expression_\\*〛{)}
+   _brackets-clause_::= {([]} {{}_expression_{\\}}\\*{)}
 
-   _braces-clause_::= {({\}} 〚_expression_\\*〛{)}
+   _braces-clause_::= {({\}} {{}_expression_{\\}}\\*{)}
 
-   _tex-clause_::= {(} _tex-macro_ 〚_expression_\\*〛{)}
+   _tex-clause_::= {(} _tex-macro_ {{}_expression_{\\}}\\*{)}
 
    *Arguments and Values:*
 
@@ -184,7 +184,7 @@
      (make-parameter-string n))))
 
 (defmacro deftex (name parameters &body forms)
-  "_parameters_::= {(}〚_var_\\*〛{)}
+  "_parameters_::= {(}{{}_var_{\\}}\\*{)}
 
    *Arguments and Values:*
 
