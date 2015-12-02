@@ -129,7 +129,7 @@
 
    _brackets-clause_::= {([]} {{}_expression_{\\}}\\*{)}
 
-   _braces-clause_::= {({\}} {{}_expression_{\\}}\\*{)}
+   _braces-clause_::= {({\\}} {{}_expression_{\\}}\\*{)}
 
    _tex-clause_::= {(} _tex-macro_ {{}_expression_{\\}}\\*{)}
 
